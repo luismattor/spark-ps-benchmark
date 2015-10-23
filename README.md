@@ -37,12 +37,20 @@ Please refer to stats script for detailed information about available metrics.
 
 ## Experiment results
 
+We setup and experiment on a 6-node cluster. Tests perform parameter get and parameter set of a 1M double vector. We run for 100 iterations and present the average iteration time.
+
 <table>
     <tr>
         <th>Partitions</th>
         <th>Spark</th>
         <th>PS on Spark</th>
         <th>DistML</th>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>0.658223</td>
+        <td>0.543579</td>
+        <td>0.936802</td>
     </tr>
     <tr>
         <td>3</td>
