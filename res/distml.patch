@@ -1,0 +1,35 @@
+diff --git a/src/main/scala/com/intel/distml/platform/TrainingRunner.scala b/src/main/scala/com/intel/distml/platform/TrainingRunner.scala
+index b0d7166..758cf98 100644
+--- a/src/main/scala/com/intel/distml/platform/TrainingRunner.scala
++++ b/src/main/scala/com/intel/distml/platform/TrainingRunner.scala
+@@ -31,10 +31,13 @@ slave: RunnerSlave
+ 
+   monitor.tell(new MonitorActor.WorkerStarterRegister, self)
+ 
++  var time: Long = 0
++
+   override def receive() = {
+     case value: MonitorActor.ParameterServersReady => {
+       //println("parameter servers are ready, start training now. ")
+       iter = 0
++      time = System.nanoTime()
+       slave.runIter
+       //println("tell monitor iteration done.")
+       monitor.tell(new IterationDone(iter), self)
+@@ -42,13 +45,16 @@ slave: RunnerSlave
+     case msg : MonitorActor.IterationDoneAck => {
+       //println("[WorkerStarter] received: IterationDoneAck")
+       iter += 1
++      println("average[s]    :\t%f".format((System.nanoTime() - time) / 1e9))
+       if (iter == trainingContext.iteration) {
+         //println("tell monitor training done.")
+         monitor.tell(new TrainingDone(), self)
+       }
+       else {
++        time = System.nanoTime()
+         println("**************** iteration: " + iter + " ****************")
+         slave.runIter
++
+         //println("tell monitor iteration done.")
+         monitor.tell(new IterationDone(iter), self)
+       }
