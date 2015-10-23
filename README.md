@@ -17,7 +17,7 @@ Before running cluster benchmarks ensure you have started Spark Cluster, this sh
 
 	$  /usr/local/spark-ps/sbin/start-all.sh
 
-Code includes two benchmarks: AsynchronousBenchmark and SynchornousBenchmark. Scripts for running the benchmarks on local node or on a cluster are provided:
+Scripts for running the benchmarks on local node or on a cluster are provided:
 
 	$ ./benchmark-local.sh 4 100 1000000 PSUpdateBenchmark output.txt
 
