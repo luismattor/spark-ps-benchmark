@@ -21,7 +21,7 @@ Scripts for running the benchmarks on local node or on a cluster are provided:
 
 	$ ./benchmark-local.sh 4 100 1000000 PSUpdateBenchmark output.txt
 
-	$ ./benchmark-cluster.sh 5 10 1000000 DistMLUpdateBenchmark output.txt
+	$ ./benchmark-cluster.sh 4 100 1000000 DistMLUpdateBenchmark output.txt
 
 Scripts need to be configured in order to run properly (i.e. set up cluster node names, set up jar file paths). Please refer to script files for detailed information about running benchmarks
 
@@ -37,7 +37,7 @@ Please refer to stats script for detailed information about available metrics.
 
 ## Experiment results
 
-We setup and experiment on a 6-node cluster. Tests perform parameter get and parameter set of a 1M double vector. We run for 100 iterations and present the average iteration time.
+We setup and experiment on a 6-node cluster. Each node in cluster has an Intel Xeon CPU E31240 @ 3.30GHz processor with a Gigabit network controller. Tests perform parameter get and parameter set of a 1-million-doubles vector. We run for 100 iterations and present the average iteration time.
 
 <table>
     <tr>
