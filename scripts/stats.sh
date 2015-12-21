@@ -34,7 +34,6 @@ function compute_stats_cluster() {
             python metrics-ps.py -i $node_file -m worker
             python metrics-gc.py -i $node_file
         fi
-        rm $node_file
     done
     python $scriptdir/metrics-ps.py -i $acc_file -m worker
     python $scriptdir/metrics-ps.py -i $1 -m master
@@ -55,7 +54,7 @@ function compute_stats_local() {
 app_id=$(grep "Application ID" $1 | awk 'NF>1{print $NF}')
 
 # Experiment log directory
-app_log_dir=$experiments_dir/work/$appid
+app_log_dir=$experiments_dir/work/$app_id
 
 echo "$(date) Computing benchmark experiments for $1 ($app_id)"
 
