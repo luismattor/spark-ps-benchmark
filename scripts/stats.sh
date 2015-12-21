@@ -13,7 +13,7 @@ set -e
 scriptdir="$(dirname $(readlink -f $0))"
 
 # Experiment log dir
-experiments_dir=$scriptdir/../experiments
+experiments_dir=$scriptdir/../experiments/spark
 # Worker nodes for fetching logs
 declare -a nodes=("node-0" "node-1" "node-2" "node-3" "node-4")
 

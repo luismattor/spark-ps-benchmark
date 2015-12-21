@@ -24,7 +24,7 @@ spark_home=/usr/local/spark-ps
 # Remote worker log dir 
 workerlog_dir_remote=/usr/local/spark-ps/work
 # Experiment outputs dir
-experiments_dir=$scriptdir/../experiments
+experiments_dir=$scriptdir/../experiments/spark
 # History log dir
 eventlog_dir=$experiments_dir/history
 # Workers log dir
