@@ -1,5 +1,6 @@
 *.class
 *.log
+*.swp
 
 # sbt specific
 .cache
@@ -18,4 +19,8 @@ project/plugins/project/
 
 # Project specific
 TODO.txt
-report/
+experiments/
+
+# Report
+report/*.pdf
+report/res/*.xml

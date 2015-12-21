@@ -1,0 +1,61 @@
+\section*{DistML}
+\label{sec:distml}
+
+DistML(Distributed Machine Learning Platform) is a machine learning tool which allows training very large models on Spark or Hadoop.
+
+As sketched on \autoref{fig:distml-arch}, DistML is architected using three main components: monitor, servers and workers. The \textit{Monitor} process runs on Spark Driver. It keeps track of parameter servers and workers. There might be multiple parameter server instances. All parameters are distributed across the available servers. Clients communicate with servers through an interface called DataBus, which provides the methods for fetching and pushing parameters. Both parameter servers and workers run on Spark executors. In fact a parameter server instance and a worker instance could be running on the same executor (This configuration is not depicted in \autoref{fig:distml-arch} though).
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[scale=0.5]{res/distml}
+  \caption{DistML architecture}
+  \label{fig:distml-arch}
+\end{figure}
+
+DistML provides the following API: 
+\begin{itemize}
+  \item DMatrix: a descriptive concept to represent how a parameter is partitioned and initialized across servers.
+  \item Matrix: a container to hold the "real" parts of parameters.
+  \item KeyCollection: a container to hold parameter indices (for knowing what part of the parameter is in what server).
+  \item Model: an implementation of the machine learning model. Models specify the parameters needed and the functions to update those parameters.
+\end{itemize} 
+For programming a machine learning application, a user typically need to implement the Model class specifying what the parameters are and how to train the model for adjusting those parameters. 
+
+Under this implementation of parameter server, a gradient descent procedure runs as follows:
+\begin{enumerate}
+  \item Data is loaded into an RDD.
+  \item Parameters are partitioned based on number of servers. Partition method may be linear or hash based (linear partitioning set as default).
+  \item The model, which is defined by the user, is broadcasted to all Spark executors.
+  \item The Monitor is started on Spark Driver
+  \item The Parameter Servers are started on Spark executors. Its parameters are initialized based on the partition defined in step 2.
+  \item A TrainingRunner is started on Spark Driver. This component controls the training iterations. For each iteration:
+  \begin{enumerate}[label*=\arabic*.]
+    \item The TrainingRunner starts a client/worker for each input data partition. Worker paramters are initialized too. On each worker:
+    \begin{enumerate}[label*=\arabic*.]
+      \item Model's preTraining() function is called. This function fetches parameters from server.
+      \item Model's compute() function is called. This function implements gradient descent. It uses fetched parameters and local data.
+      \item Model's postTraining() function is called. This function pushes parameters to server.
+    \end{enumerate}  
+  \end{enumerate}  
+\end{enumerate}
+
+We can highlight the following DistML's workflow facts
+\begin{enumerate}
+  \item As MLlib aproach, DistML creates a new RDD operation for each iteration.
+  \item Get and Set are blocking operations.
+  \item New clients are created at the start of each iteration and disposed at the end.  
+  \item Similar to PS on Spark, there is no parameter broadcasting for Get call for workers on the same node.
+  \item Similar to PS on Spark, there is no parameter aggregation for Set call for workers on the same node.
+  \item Compared to PS on Spark, DistML generates a greater communication message traffic.
+\end{enumerate}
+
+We run some experiments to test parameter update times and got the results presented in \autoref{table:evaluation}. We now present what we learned from our experiments:
+\begin{itemize}
+  \item {[}Points 1 and 2{]}. RDD operations on each iteration disables any asynchronous training procedure.
+  \item {[}Point 3{]}. Additional overhead is generated for initializing and stopping clients on each iteration.
+  \item {[}Points 4 and 5{]}. Most of the conclusions we got from PS on Spark are still valid for DistML. Clients on the same machine are not aware of each other, so there are wasteful Set and Get calls.
+  \item {[}Point 5{]}. Message interaction between DistML components (Monitor, Servers, Clients, TrainingRunner) is heavier in comparison to PS on Spark.
+\end{itemize}
+
+%This implementation limits number of partitions to the maximum number of available cores.
+%ProgressRemainder checks for both progress and iteration termination.

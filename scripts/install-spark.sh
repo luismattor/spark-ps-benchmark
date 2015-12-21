@@ -3,7 +3,7 @@
 # Install a binary Spark distribution on a cluster
 #
 # title         install-spark.sh
-# author        Luis Mateos (luismattor@gmail.com)
+# author        Luis Mateos
 # date          11-08-2015
 # usage         ./instal-spark.sh 
 # notes         Set global variables properly
@@ -18,8 +18,7 @@ spark_jar_path=/home/hduser/spark-ps/spark-1.4.0-SNAPSHOT-bin-spark-ps.tgz
 spark_jar_name=$(basename "${spark_jar_path}")
 node_home=/home/hduser
 prefix=/usr/local
-declare -a nodes=("mercado-10" "mercado-11" "mercado-12" "mercado-13" "mercado-19")
-#declare -a nodes=("mercado-10")
+declare -a nodes=("node-0" "node-1" "node-2" "node-3" "node-4")
 
 function install_on_local_node() {
 	# Uninstalling if exists

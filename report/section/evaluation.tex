@@ -1,0 +1,28 @@
+\section*{Evaluation}
+\label{sec:evaluation}
+
+We setup and experiment on a 6-node cluster. The following table shows total update times for the three systems described previously.
+
+\begin{longtable}{m{3cm} m{3cm} m{3cm} m{3cm} }
+\hline
+Partition & Spark & PS on Spark & DistML \\
+\hline
+\rowcolor[gray]{0.9}
+2 & 0.658223 & 0.543579 & 0.936802 \\
+3 & 0.764838 & 0.686946 & 1.031660 \\
+\rowcolor[gray]{0.9}
+4 & 0.851536 & 0.780065 & 1.102909 \\
+5 & 0.863518 & 0.884226 & 1.194329 \\
+\rowcolor[gray]{0.9}
+8 & 0.925723 & 1.106068 & 1.518073 \\
+16 & 1.100667 & 1.762331 & 2.445314 \\
+\rowcolor[gray]{0.9}
+32 & 1.303568 & 3.509727 & 3.997999 \\
+64 & 1.723489 & 7.072663 & 7.690554 \\
+\hline
+\caption{Total parameter update test for Spark, PS on Spark and DistML. Experiment settings are numberIteration=100, numberFeatures=1M}
+\label{table:evaluation}
+\end{longtable}
+
+The experiments show that parameter server implementations does not perform better than conventional spark. The main problem is the fact that both implementations does not make any broadcasting nor aggregation for Get and Set call for clients running on the same node. We claim that any optimal implementation of parameter server should resolve this issue\footnote{This is only valid for multi-core nodes. Note that the results for numberPartitions=5 might be considered an estimation of what would happen when running the experiment on six one-core nodes.}
+

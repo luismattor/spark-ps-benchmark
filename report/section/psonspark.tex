@@ -1,0 +1,54 @@
+\section*{PS on Spark}
+\label{sec:psspark}
+%Qiping Li
+PS on Spark is a prototype of Parameter Server on Spark. It was conceived as a solution for improving model update throughput for machine learning applications, specifically those for ultra-high dimension features.
+
+PS on Spark architecture is sketched on \autoref{fig:psonspark-arch}. This implementation considers three main entities: master, servers and clients. \textit{Master} instance runs on Spark driver and is in charge of keeping track of parameter servers and clients. \textit{Server} instances contain the parameters. Current implementation only can handle a single server which runs on Spark driver. Finally, \textit{clients} run on spark executors and communicate with parameter server within the context of a \textit{Parameter Server Job}, a code environment that provides the API for communicating with parameter servers.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[scale=0.5]{res/psonspark}
+  \caption{PS on Spark architecture}
+  \label{fig:psonspark-arch}
+\end{figure}
+
+Under this implementation of parameter server, a gradient descent procedure runs as follows:
+\begin{enumerate}
+  \item A parameter server context is initialized (Master and Server instances are created).
+  \item Data is loaded into an RDD.
+  \item Initial weights are uploaded to parameter server.
+  \item A new parameter server job is started on each worker. Internally, a job is a map operation executed over the data RDD. The parameter server job provides two objects: a client instance for making calls to parameter server and an array with all data elements for that worker/partition. On each worker:
+  \begin{enumerate}[label*=\arabic*.]
+    \item For each iteration:
+    \begin{enumerate}[label*=\arabic*.]
+      \item Client gets weights from PS.
+      \item Worker computes local gradient using current weights and local data.
+      \item Client updates weights.
+      \item Client issues an alert to notify that current iteration has finished
+      \end{enumerate}
+  \end{enumerate}
+  \item Spark driver can download parameters from server and use them for making predictions.
+\end{enumerate}
+
+This particular workflow differs from MLlib approach on the following points:
+\begin{enumerate}
+  \item PS on Spark uses a single RDD operation.
+  \item Set operation is non-blocking. A worker continues execution immediately after Set call. 
+  \item Get operation is blocking. A Get call in iteration i blocks until all Set operation on iteration i-1 have finished.
+  \item There is no parameter broadcasting. Clients get whole params from server even if they are in same computer.
+  \item There is no parameter aggregation per executor. Clients push params to server independently, they are not aware of clients running on same executor.
+  \item Parameters must fit in memory. Thats the only way of initializing parameters on Parameter Server.
+\end{enumerate}
+
+We run some experiments to test parameter update times and got the results presented in \autoref{table:evaluation}. We now present what we learned from our experiments:
+
+\begin{itemize}
+  \item {[}Points 1 and 2{]}. Set operation is non-blocking but Get is not. Then workers still have to wait for parameters to be ready.
+  \item {[}Point 4{]}. We got really high values for Get times. The more number of partitions, the higher the values. Since workers on the same node are not aware of each other, there is unnecessary parameter Get calls and thus network message overhead. Better approach would be "broadcasting" parameters to all executors. Note that the term broadcasting may be misleading as broadcasting in Spark is conceived as pushing read-only data from driver to workers. In contrast in Parameter Server approach, communication is conceived as clients pulling data from server.
+  \item {[}Point 5{]}. We got really high values for Set times. Since workers on the same Spark executor are not aware of each other, there is unnecessary parameter Set calls. Better approach would be aggregating results from same-node workers and use a single Put. However there is no an easy solution for implementing this feature in this Parameter Server implementation \footnote{A possible solution to this problem is using a custom partitioning strategy such that aggregation occurs on clients in the same node See "Controllable partitioning on \url{http://ampcamp.berkeley.edu/wp-content/uploads/2012/06/matei-zaharia-amp-camp-2012-advanced-spark.pdf}". However, this represents a serious development challenge as (under this PS implementation) PS jobs run within a Spark RDD operation.}.
+  \item {[}Points 4 and 5{]}. Our experiments show that Set and Get messages are not processed immediately. This may be explained by the fact that message handling in parameter server is limited by akka's actor model. Akka actors process incoming messages sequentially to ensure actor's internal state consistency \footnote{see \url{http://doc.akka.io/docs/akka/snapshot/general/actors.html}}. So, parameter server represents a bottleneck as all calls are processed sequentially.
+  \item {[}Point 6{]}. A common design goal for Parameter server is to able to train very large models. However, this implementation lacks this feature as parameters are uploaded to PS by calling $uploadParams(array)$ in Spark driver. So, driver must have enough memory to store the whole model.
+\end{itemize}
+
+% Questions
+% ¿How to get advantage of async communication? ¿How to deal with parameter consistency?

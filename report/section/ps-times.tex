@@ -1,0 +1,45 @@
+\section*{PS on Spark times}
+\label{sec:psonspark-times}
+
+\autoref{table:psonspark_times} presents a detailed summary of the times taken by several key operations of PS on Spark running. Note that the results presented here does not match the ones presented in previous section. PS on Spark experiment code was modified so we simulate an scenario when clients in the same node get parameter from parameter server just once.
+
+\begin{longtable}{m{1.5cm} m{2cm} m{2.5cm} m{5cm} m{2.5cm} }
+\hline
+Partition & Update time [s] & Round-trip delay time for Get [s] & Round-trip delay time for Set [s] & Time for parameter addition [s] \\
+\hline
+\rowcolor[gray]{0.9}
+2 & 0.831614 & 0.157408 &	0.235500 [0.152327, 0.296039] & 0.036573 \\
+3 & 0.942994 & 0.153505 & 0.337183 [0.205407, 0.438814] & 0.045387 \\
+\rowcolor[gray]{0.9}
+4 & 1.020373 & 0.151035 & 0.425297 [0.221590, 0.539716] & 0.039601 \\
+5 & 1.095866 & 0.148472 & 0.513076 [0.247881, 0.640646] & 0.036079 \\
+\rowcolor[gray]{0.9}
+8 & 1.219516 & 0.142174 & 0.556611 [0.328572, 0.746187] & 0.034444 \\
+16 & 1.778220 & 0.139622 & 0.855537 [0.313167, 1.375825] & 0.035265 \\
+\rowcolor[gray]{0.9}
+32 & 3.039886 & 0.138668 & 0.858055 [0.266203, 1.645111] & 0.033729 \\
+64 & 5.328923 & 0.138693 & 0.890338 [0.140204, 1.618945] & 0.030936 \\
+\hline
+\caption{PS on Spark times. Experiment settings are numberIteration=100, numberFeatures=1M. For round-trip delay Set time, min and max values are presented for illustrating the message overhead for Set calls in Parameter Server.}
+\label{table:psonspark_times}
+\end{longtable}
+
+A parameter server is a particular implementation of a key-value storage. So, \autoref{table:tools_times} presents Read and Write times for two popular, high-performance key-value storage tools: MemcacheDB and LMDB. The table serves as a reference against the Get/Set times presented in \autoref{table:psonspark_times}. 
+
+\begin{longtable}{m{2.5cm} m{2.5cm} m{2.5cm} }
+\hline
+Tool & Read time & Write time \\
+\hline
+\rowcolor[gray]{0.9}
+MemcacheDB & 1.2450 [s] & 3.3955 [s] \\
+LMDB       & 0.0465 [ms] & 6.3291 [ms] \\
+\hline
+\caption{MemcacheDB and LMDB benchmarks estimation for Read and Write times assuming they are used as back-end parameter servers. As discussed in this report, they just are optimistic and hypothetical figures (they does not consider network variables nor the fact that workload conditions are different). }
+\label{table:tools_times}
+\end{longtable}
+
+Special care need to be taken when interpreting the results as the benchmark conditions for each tool are different. We can list at least two conditions that may affect considerably any direct comparison:
+\begin{enumerate}
+  \item PS on Spark experiments where run in a cluster. In contrast, MemcacheDB and LMDB experiments are run in a single computer. So results for the latter does not consider additional variables like network hardware or network speed. Throughput should be lower when testing in a cluster. In fact, based on the presented figures, it would be the case that throughput is bounded by network speed/hardware rather than the storage tool itself. For instance, our experiments showed that approximately 0.15 seconds are needed to send a 1M-size vector. This is much bigger that the estimation time for writing a value to LMDB (estimated on 6.3 ms). 
+  \item Benchmarks do not simulate the same workload. PS on Spark benchmark uses a single large-size value. In contrast, MemcacheDB and LMDB bechmarks uses several small-size values.
+\end{enumerate}

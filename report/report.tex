@@ -1,0 +1,87 @@
+% Parameter Server on Spark report
+% September 2015
+%
+% Luis Gilberto Mateos Ortiz [luismattor@gmail.com]
+
+\documentclass[english,10pt]{report}
+\usepackage[margin=0.8in]{geometry}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{color}
+\usepackage{colortbl}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\usepackage{graphicx}
+\graphicspath{{./fig/}}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\addto\extrasenglish{
+  \renewcommand{\chapterautorefname}{Chapter}
+  \renewcommand{\appendixautorefname}{Appendix}  
+  \renewcommand{\sectionautorefname}{Section}    
+  \renewcommand{\figureautorefname}{Figure}
+  \renewcommand{\tableautorefname}{Table}
+  \renewcommand{\subsectionautorefname}{Section}  
+}
+\hypersetup{
+  colorlinks,
+  breaklinks,
+  citecolor=black,
+  filecolor=black,
+  linkcolor=black,
+  urlcolor=black,
+  linktoc = all,
+  pdfauthor = {Luis Gilberto Mateos Ortiz},
+  pdfkeywords = {Parameter Server, Spark},
+  pdfsubject = {Parameter Server implementatons on Spark},
+  pdftitle = {Parameter Server implementatons on Spark}
+}
+\usepackage{listings}
+\lstset{ %
+  backgroundcolor=\color{white},
+  basicstyle=\scriptsize ,       
+  breakatwhitespace=false,        
+  breaklines=true,                
+  captionpos=b,                   
+  commentstyle=\color{mygreen},    
+  keepspaces=true,                 
+  keywordstyle=\color{blue},       
+  language=bash,     
+  numbers=left,                    
+  numbersep=5pt,                   
+  numberstyle=\tiny\color{mygray}, 
+  rulecolor=\color{black},         
+  showspaces=false,                
+  showstringspaces=false,
+  showtabs=false,                  
+  stepnumber=2,          
+  stringstyle=\color{mymauve},     
+  tabsize=2            
+}
+\usepackage{lscape}
+\usepackage{longtable}
+\usepackage{parskip}
+\usepackage{mathtools}
+\usepackage{multirow}
+\usepackage[numbers]{natbib}
+\usepackage{subcaption}
+\usepackage{url}
+\usepackage{pdflscape}
+
+\title{\vspace{-80mm}Parameter server implementations on Spark}
+\author{}
+\date{September 2015}
+\begin{document}
+  \maketitle
+  \include{./section/mllib}
+  \include{./section/psonspark}
+  \include{./section/distml}
+  \include{./section/ps-times}  
+  \include{./section/evaluation}
+\end{document}
