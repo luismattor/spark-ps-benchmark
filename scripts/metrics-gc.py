@@ -46,7 +46,7 @@ def parse_gc_operation(line, generation):
 def parse_gc_time(line):
     start=line.find("real")+5
     end=line.find(" ", start)
-    return float(line[start:end])
+    return float(line[start:end].replace(",", "."))
     
 def parse_major_gc_line(line):
     gc_tuple = HeapTuple()

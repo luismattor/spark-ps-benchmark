@@ -55,7 +55,7 @@ function compute_stats_local() {
 app_id=$(grep "Application ID" $1 | awk 'NF>1{print $NF}')
 
 # Experiment log directory
-app_log_dir=$experiments_dir/$appid
+app_log_dir=$experiments_dir/work/$appid
 
 echo "$(date) Computing benchmark experiments for $1 ($app_id)"
 
