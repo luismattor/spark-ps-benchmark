@@ -10,7 +10,7 @@ object PSZenUpdateBenchmark {
     
     val ApplicationName = "PS Zen - Parameter Update Benchmark"
 
-    val PSMasterAddress = "localhost"
+    val PSMasterAddress = "localhost:10010"
 
     val PSNamespace = "ps"
 
@@ -51,7 +51,7 @@ object PSZenUpdateBenchmark {
                 psClient.add2Vector(PSParamName, indices, new DoubleArray(delta))
                 psClient.close()
                 Iterator()
-            }
+            }.count()
         }
 
         println("average[s]    :\t%f".format((System.nanoTime() - time) / 1e9 / NumIterations))
@@ -59,6 +59,7 @@ object PSZenUpdateBenchmark {
         val sum2 = 0.1 * NumIterations * NumPartitions * NumFeatures
         psClient.removeVector(PSParamName)
         psClient.close()
+
         println("sum [computed]:\t%f".format(sum1))
         println("sum [real]    :\t%f".format(sum2))
         println("total [s]     :\t%f".format((System.nanoTime - start) / 1e9))
