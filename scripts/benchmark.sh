@@ -31,6 +31,7 @@ eventlog_dir=$experiments_dir/history
 workerlog_dir=$experiments_dir/work
 # Worker nodes for fetching logs in cluster mode
 nodes=("node-0" "node-1" "node-2" "node-4" "node-5")
+#nodes=($(eval echo worker{0..15}))
 # Remote use for connecting to workers
 worker_user=hduser
 
@@ -106,8 +107,8 @@ function fetch_numa_worker_logs() {
         app_log_dir_numa=$workerlog_dir_remote/store-$node/$app_id
         worker_id=$(ls $app_log_dir_numa)
         mkdir -p $app_log_dir_local/$node
-        cp $app_log_dir_numa/worker_id/stdout $app_log_dir_local/$node/stdout
-        cp $app_log_dir_numa/worker_id/stderr $app_log_dir_local/$node/stderr
+        cp $app_log_dir_numa/$worker_id/stdout $app_log_dir_local/$node/stdout
+        cp $app_log_dir_numa/$worker_id/stderr $app_log_dir_local/$node/stderr
     done
 }
 
