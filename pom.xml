@@ -38,6 +38,11 @@
             <artifactId>psclient</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.tachyonproject</groupId>
+            <artifactId>tachyon-client</artifactId>
+            <version>0.8.2</version>
+        </dependency>
         <!--<dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-ps</artifactId>
