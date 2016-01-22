@@ -105,17 +105,20 @@ object TachyonMapUpdateBenchmark {
         for (i <- 0 until NumIterations) {
             val bcWeights = data.context.broadcast(weights)
             // Mapping
-            var partials = data.mapPartitionsWithIndex( (i, iter) => {
-                val w = Array.fill(NumFeatures)(0.0)
-                val update = w.zip(Array.fill[Double](NumFeatures)(0.1)).map(t => t._1 + t._2)
-                val file = "reduce1-" + i
+            data.mapPartitionsWithIndex( (i, iter) => {
+                val w = Array.fill[Double](NumFeatures)(0.0)
+                val r = new java.util.Random(301214L)
+                val update = w.zip(Array.fill[Double](NumFeatures)(r.nextFloat)).map(t => t._1 + t._2)
+                val file = "/reduce1-" + i
                 writeTachyon(file, update)
                 Iterator()
-            })
+            }).count()
             // First reduce
-            val numReducers = 5 //TODO Use same formula as tree-aggregate or use optimal num of reducers
+            val depth = 2
+            val scale = math.max(math.ceil(math.pow(NumPartitions, 1.0 / depth)).toInt, 2)
+            val numReducers = NumPartitions/scale
             val reduceIds = sc.parallelize(0 until numReducers, numReducers)
-            partials.mapPartitionsWithIndex( (i, iter) => {
+            reduceIds.mapPartitionsWithIndex( (i, iter) => {
                 val batchSize = NumPartitions / numReducers
                 val start = i * batchSize
 
@@ -124,29 +127,33 @@ object TachyonMapUpdateBenchmark {
                 if(NumPartitions - end < batchSize)
                     end = NumPartitions
 
-                val update = Array.fill[Double](NumFeatures)(0.0)
-                for (j <- start until end) {
-                    val inFile = "reduce1-" + j
+                var inFile = "/reduce1-" + start
+                var update = readTachyon(inFile)
+                for (j <- (start + 1) until end) {
+                    inFile = "/reduce1-" + j
                     val tmp = readTachyon(inFile)
-                    update.zip(tmp).map(t => t._1 + t._2)
-                    val outFile = "reduce2-" + i
-                    writeTachyon(outFile, update)
+                    update = update.zip(tmp).map(t => t._1 + t._2)
                 }
+                val outFile = "/reduce2-" + i
+                writeTachyon(outFile, update)
                 Iterator()
             }).count()
             // Second reduce
-            val update = Array.fill[Double](NumFeatures)(0.0)
-            for (j <- 0 until numReducers) {
-                val inFile = "reduce2-" + j
+            var inFile = "/reduce2-" + 0
+            var update = readTachyon(inFile)
+            for (j <- 1 until numReducers) {
+                val inFile = "/reduce2-" + j
                 val tmp = readTachyon(inFile)
-                update.zip(tmp).map(t => t._1 + t._2)
+                update = update.zip(tmp).map(t => t._1 + t._2)
             }
             weights = weights.zip(update).map(t => t._1 + t._2)
         }
         
         println("average[s]    :\t%f".format((System.nanoTime() - time) / 1e9 / NumIterations))
         val sum1 = weights.sum
-        val sum2 = 0.1 * NumIterations * NumPartitions * NumFeatures
+        //val sum2 = 0.1 * NumIterations * NumPartitions * NumFeatures
+        val r = new java.util.Random(301214L)
+        val sum2 = NumIterations * NumPartitions * Array.fill[Double](NumFeatures)(r.nextFloat).sum
         println("sum [computed]:\t%f".format(sum1))
         println("sum [real]    :\t%f".format(sum2))
         println("total [s]     :\t%f".format((System.nanoTime - start) / 1e9))
