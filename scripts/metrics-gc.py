@@ -70,7 +70,7 @@ def parse_metrics_file(file):
         cline=line.strip()
         if "[Full" in cline:
             major.append(parse_major_gc_line(cline))
-        elif "[GC" in cline:
+        elif "[GC" in cline and len(cline) > 20:
             minor.append(parse_minor_gc_line(cline))
     return major, minor
 
