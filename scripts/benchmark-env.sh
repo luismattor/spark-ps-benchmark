@@ -19,18 +19,15 @@ nodes=("node-0" "node-1" "node-2" "node-4" "node-5")
 #nodes=($(eval echo worker{0..15}))
 # Remote use for connecting to workers
 worker_user=hduser
+# Enable extended output for benchamarks on cluster
+extended_logging=0
 
-# Script parameters
-mode=$1
-benchmark_class=$2
-n_partitions=$3
-n_iterations=$4
-n_features=$5
-benchmark_output=$6
-
-# Default spark configuration
+# Master address
 master="local[*]"
 #master="spark://mercado-9:7077"
+# Memory used for driver
 driver_memory=3g
+# Memory used for each executor
 executor_memory=0g
+# Number of threads for GC
 gc_threads=2

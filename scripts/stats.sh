@@ -14,11 +14,6 @@ scriptdir="$(dirname $(readlink -f $0))"
 
 . "$scriptdir/benchmark-env.sh"
 
-# Experiment log dir
-experiments_dir=$scriptdir/../experiments/spark
-# Worker nodes for fetching logs
-declare -a nodes=("node-0" "node-1" "node-2" "node-3" "node-4")
-
 function compute_stats_cluster() {
     # Create new accumulated metrics file
     acc_file=stats.log
@@ -33,8 +28,11 @@ function compute_stats_cluster() {
             echo "$(date) Appending file for node " $node
             echo "$(date) Printing stats for node " $node
             cat $node_file >> $acc_file
-            python metrics-ps.py -i $node_file -m worker
-            python metrics-gc.py -i $node_file
+            if [ $extended_logging -ne 0 ]
+            then
+                python metrics-ps.py -i $node_file -m worker
+                python metrics-gc.py -i $node_file
+            fi
         fi
     done
     echo "$(date) Printing stats for master"

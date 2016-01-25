@@ -22,6 +22,14 @@ scriptdir="$(dirname $(readlink -f $0))"
 
 . "$scriptdir/benchmark-env.sh"
 
+# Script parameters
+mode=$1
+benchmark_class=$2
+n_partitions=$3
+n_iterations=$4
+n_features=$5
+benchmark_output=$6
+
 function run_benchmark() {
     echo "$(date) Running benchmark $benchmark_class in $mode mode"
     $spark_home/bin/spark-submit \
