@@ -78,7 +78,7 @@ def main(argv):
             input_file = arg
         elif opt == "-m":
             mode = arg
-        elif opt = "-b" :
+        elif opt == "-b" :
             benchmark = arg
         else:
             assert False, "Unhandled exception"

@@ -26,10 +26,10 @@ function compute_stats_cluster() {
         node_file=$app_log_dir/$node/stdout
         if [ -s $node_file ]; then
             echo "$(date) Appending file for node " $node
-            echo "$(date) Printing stats for node " $node
             cat $node_file >> $acc_file
             if [ $extended_logging -ne 0 ]
             then
+                echo "$(date) Printing stats for node " $node
                 python metrics-ps.py -i $node_file -m worker
                 python metrics-gc.py -i $node_file
             fi
