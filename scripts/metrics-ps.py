@@ -29,24 +29,26 @@ def compute_basic_stats(metric, mode="read-all"):
     avg = avg/len(values)
     return "%.6f, %.6f, %.6f [%d Found]" % (avg, minimum, maximum, len(values))
 
-def print_ps_master_stats():
+def print_master_stats(benchmark="generic"):
     print "[Driver statistics]"
-    print "PS Get (total)            [s]: ", compute_basic_stats("ps-get", mode="skip-first")
-    print "Broadcast                 [s]: ", compute_basic_stats("ps-broadcast")
-    print "PS Job                    [s]: ", compute_basic_stats("ps-job")
-    print "Update vector             [s]: ", compute_basic_stats("ps-vector-update", mode="skip-first")
-    print "PS Get (trip)             [s]: ", compute_basic_stats("ps-net-get", mode="skip-last")
+    if benchmark == "ps":
+        print "PS Get (total)            [s]: ", compute_basic_stats("ps-get", mode="skip-first")
+        print "Broadcast                 [s]: ", compute_basic_stats("ps-broadcast")
+        print "PS Job                    [s]: ", compute_basic_stats("ps-job")
+        print "Update vector             [s]: ", compute_basic_stats("ps-vector-update", mode="skip-first")
+        print "PS Get (trip)             [s]: ", compute_basic_stats("ps-net-get", mode="skip-last")
     print "Iteration time            [s]: ", compute_basic_stats("average")
 
-def print_ps_worker_stats():
+def print_worker_stats(benchmark="generic"):
     print "[Executor statistics]" 
-    print "Casting iter to array     [s]: ", compute_basic_stats("ps-toarray")
-    print "Create client             [s]: ", compute_basic_stats("ps-create-client")
-    print "Client function time      [s]: ", compute_basic_stats("ps-function")
-    print "Create delta              [s]: ", compute_basic_stats("ps-delta")
-    print "Stop client               [s]: ", compute_basic_stats("ps-stop-client")
-    print "PS set (trip)             [s]: ", compute_basic_stats("ps-net-update", mode="skip-first")
-    print "Unregister client (trip)  [s]: ", compute_basic_stats("ps-net-remove")
+    if benchmark == "ps":
+        print "Casting iter to array     [s]: ", compute_basic_stats("ps-toarray")
+        print "Create client             [s]: ", compute_basic_stats("ps-create-client")
+        print "Client function time      [s]: ", compute_basic_stats("ps-function")
+        print "Create delta              [s]: ", compute_basic_stats("ps-delta")
+        print "Stop client               [s]: ", compute_basic_stats("ps-stop-client")
+        print "PS set (trip)             [s]: ", compute_basic_stats("ps-net-update", mode="skip-first")
+        print "Unregister client (trip)  [s]: ", compute_basic_stats("ps-net-remove")
 
 def parse_metrics_file(filename):
     f = open(filename, 'r')
@@ -62,7 +64,7 @@ def parse_metrics_file(filename):
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv, "i:m:")
+        opts, args = getopt.getopt(argv, "i:m:b:")
     except getopt.GetoptError as err:
         print(err)
         usage()
@@ -70,19 +72,22 @@ def main(argv):
 
     input_file = None
     mode = "none"
+    benchmark = "all"
     for opt, arg in opts:
         if opt == "-i":
             input_file = arg
         elif opt == "-m":
             mode = arg
+        elif opt = "-b" :
+            benchmark = arg
         else:
             assert False, "Unhandled exception"
 
     parse_metrics_file(input_file)
     if "master" in mode:
-        print_ps_master_stats()
+        print_master_stats(benchmark)
     elif "worker" in mode:
-        print_ps_worker_stats()
+        print_worker_stats(benchmark)
    
 if __name__ == '__main__':
     main(sys.argv[1:])

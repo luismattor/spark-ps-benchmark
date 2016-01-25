@@ -12,12 +12,7 @@ set -e
 
 scriptdir="$(dirname $(readlink -f $0))"
 
-# Experiment outputs dir
-experiments_dir=$scriptdir/../experiments
-# History log dir
-eventlog_dir=$experiments_dir/history
-# Workers log dir
-workerlog_dir=$experiments_dir/work
+. "$scriptdir/benchmark-env.sh"
 
 function remove_experiment_log() {
     # Read app ID from experiment output file

@@ -12,6 +12,8 @@ set -e
 
 scriptdir="$(dirname $(readlink -f $0))"
 
+. "$scriptdir/benchmark-env.sh"
+
 # Experiment log dir
 experiments_dir=$scriptdir/../experiments/spark
 # Worker nodes for fetching logs
@@ -35,15 +37,17 @@ function compute_stats_cluster() {
             python metrics-gc.py -i $node_file
         fi
     done
-    python $scriptdir/metrics-ps.py -i $acc_file -m worker
-    python $scriptdir/metrics-ps.py -i $1 -m master
-    python $scriptdir/metrics-gc.py -i $acc_file
+    echo "$(date) Printing stats for master"
+    python $scriptdir/metrics-ps.py -i $1 -m master -b generic
     python $scriptdir/metrics-gc.py -i $1
+    echo "$(date) Printing aggregated stats for all nodes"
+    python $scriptdir/metrics-ps.py -i $acc_file -m worker -b generic
+    python $scriptdir/metrics-gc.py -i $acc_file
 }
 
 function compute_stats_local() {
-    python $scriptdir/metrics-ps.py -i $1 -m master
-    python $scriptdir/metrics-ps.py -i $1 -m worker
+    python $scriptdir/metrics-ps.py -i $1 -m master -b generic
+    python $scriptdir/metrics-ps.py -i $1 -m worker -b generic
     python $scriptdir/metrics-gc.py -i $1
 
 }

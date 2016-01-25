@@ -110,6 +110,7 @@ object TachyonMapUpdateBenchmark {
                 val r = new java.util.Random(301214L)
                 val update = w.zip(Array.fill[Double](NumFeatures)(r.nextFloat)).map(t => t._1 + t._2)
                 val file = "/reduce1-" + i
+                //println("Map-out: " + update.sum)
                 writeTachyon(file, update)
                 Iterator()
             }).count()
@@ -134,6 +135,7 @@ object TachyonMapUpdateBenchmark {
                     val tmp = readTachyon(inFile)
                     update = update.zip(tmp).map(t => t._1 + t._2)
                 }
+                //println("Map-out-2: " + update.sum)
                 val outFile = "/reduce2-" + i
                 writeTachyon(outFile, update)
                 Iterator()
