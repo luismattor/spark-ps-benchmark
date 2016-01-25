@@ -43,7 +43,8 @@ object PSBroadcastUpdateBenchmark {
             timer1  = System.nanoTime()
             psContext.runPSJob(data)((index, arr, client) => {
                 var timer2 = System.nanoTime
-                val delta = Array.fill[Double](NumFeatures)(0.1)
+                val r = new java.util.Random(301214L)
+                val delta = Array.fill[Double](NumFeatures)(r.nextFloat)
                 println("\tps-delta        [s]:\t%f".format((System.nanoTime() - timer2) / 1e9))
                 timer2 = System.nanoTime
                 client.update(0, delta)
@@ -56,7 +57,8 @@ object PSBroadcastUpdateBenchmark {
         }
         println("update-average [s]:\t%.6f".format((System.nanoTime() - timer0) / 1e9 / NumIterations))
         val sum1 = psContext.downloadParams()(0).sum
-        val sum2 = 0.1 * NumIterations * NumPartitions * NumFeatures
+        val r = new java.util.Random(301214L)
+        var sum2 = NumIterations * NumPartitions *  Array.fill[Double](NumFeatures)(r.nextFloat).sum
         psContext.stop()
         println("output  [computed]:\t%f".format(sum1))
         println("output      [real]:\t%f".format(sum2))

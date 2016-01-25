@@ -47,7 +47,8 @@ object PSZenUpdateBenchmark {
                 val psClient = new PSClient(PSMasterAddress)
                 psClient.setContext(PSNamespace)
                 val w = psClient.getVector(PSParamName).getValues.asInstanceOf[DoubleArray].getValues
-                val delta = Array.fill[Double](NumFeatures)(0.1)
+                val r = new java.util.Random(301214L) 
+                val delta = Array.fill[Double](NumFeatures)(r.nextFloat)
                 psClient.add2Vector(PSParamName, indices, new DoubleArray(delta))
                 psClient.close()
                 Iterator()
@@ -56,7 +57,8 @@ object PSZenUpdateBenchmark {
 
         println("average[s]    :\t%f".format((System.nanoTime() - time) / 1e9 / NumIterations))
         val sum1 = psClient.getVector(PSParamName).getValues.asInstanceOf[DoubleArray].getValues.sum
-        val sum2 = 0.1 * NumIterations * NumPartitions * NumFeatures
+        val r = new java.util.Random(301214L)
+        val sum2 = NumIterations * NumPartitions * Array.fill[Double](NumFeatures)(r.nextFloat).sum
         psClient.removeVector(PSParamName)
         psClient.close()
 

@@ -153,7 +153,6 @@ object TachyonMapUpdateBenchmark {
         
         println("average[s]    :\t%f".format((System.nanoTime() - time) / 1e9 / NumIterations))
         val sum1 = weights.sum
-        //val sum2 = 0.1 * NumIterations * NumPartitions * NumFeatures
         val r = new java.util.Random(301214L)
         val sum2 = NumIterations * NumPartitions * Array.fill[Double](NumFeatures)(r.nextFloat).sum
         println("sum [computed]:\t%f".format(sum1))

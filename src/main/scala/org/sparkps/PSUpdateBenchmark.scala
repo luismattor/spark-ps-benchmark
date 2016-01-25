@@ -36,7 +36,8 @@ object PSUpdateBenchmark {
             println("******************************")
             for (i <- 0 until NumIterations) {
                 val w = client.get(0)
-                val delta = Array.fill[Double](NumFeatures)(0.1)
+                val r = new java.util.Random(301214L) 
+                val delta = Array.fill[Double](NumFeatures)(r.nextFloat)
                 client.update(0, delta)
                 client.clock()
             }
@@ -45,7 +46,8 @@ object PSUpdateBenchmark {
             }).count()
         println("average[s]    :\t%f".format((System.nanoTime() - time) / 1e9 / NumIterations))
         val sum1 = psContext.downloadParams()(0).sum
-        val sum2 = 0.1 * NumIterations * NumPartitions * NumFeatures
+        val r = new java.util.Random(301214L)
+        val sum2 = NumIterations * NumPartitions * Array.fill[Double](NumFeatures)(r.nextFloat).sum
         psContext.stop()
         println("sum [computed]:\t%f".format(sum1))
         println("sum [real]    :\t%f".format(sum2))
